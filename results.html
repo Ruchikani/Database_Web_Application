@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <!-- jsPDF Autotable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>48th National Sports Festival 2024  <img src="04.png" height="100px" width="75px"></h1>
+
+
+        <div class="container01">
+            <h1>Data Entry Form</h1>
+
+            <!-- Results Form -->
+            <section class="form-section">
+                <h2>Results</h2>
+                <form id="resultsForm">
+                    <label for="result_competition_number">Competition Number:</label>
+                    <input type="text" id="result_competition_number" name="competition_number" required>
+                    
+                    <label for="result_event">Event:</label>
+                    <select id="result_event" name="event" required>
+                        <option value="none">None</option>
+                        <option value="4 X 50M Meldy Relay Men">4 X 50M Meldy Relay Men</option>
+                        <option value="50M Freestyle Men">50M Freestyle Men</option>
+                        <option value="200M Back Men">200M Back Men</option>
+                        <option value="100M Breast Men">100M Breast Men</option>
+                        <option value="50M Butterfly Men">50M Butterfly Men</option>
+                        <option value="200M Freestyle Men">200M Freestyle Men</option>
+                        <option value="100M Butterfly Men">100M Butterfly Men</option>
+                        <option value="4 X 50M Freestyle Relay Men">4 X 50M Freestyle Relay Men</option>
+                        <option value="50M Back Men">50M Back Men</option>
+                        <option value="400M Freestyle Men">400M Freestyle Men</option>
+                        <option value="200M Butterfly Men">200M Butterfly Men</option>
+                        <option value="100M Freestyle Men">100M Freestyle Men</option>
+                        <option value="200M Individual Meldy Men">200M Individual Meldy Men</option>
+                        <option value="50M Breast Men">50M Breast Men</option>
+                        <option value="100M Back Men">100M Back Men</option>
+                        <option value="200M Breast Men">200M Breast Men</option>
+                        <option value="1500m Freestyle Men">1500m Freestyle Men</option>
+                        <option value="4 X 50M Meldy Relay Women">4 X 50M Meldy Relay Women</option>
+                        <option value="50M Freestyle Women">50M Freestyle Women</option>
+                        <option value="200M Back Women">200M Back Women</option>
+                        <option value="100M Breast Women">100M Breast Women</option>
+                        <option value="50M Butterfly Women">50M Butterfly Women</option>
+                        <option value="200M Freestyle Women">200M Freestyle Women</option>
+                        <option value="100M Butterfly Women">100M Butterfly Women</option>
+                        <option value="4 X 50M Freestyle Relay Women">4 X 50M Freestyle Relay Women</option>
+                        <option value="50M Back Women">50M Back Women</option>
+                        <option value="400M Freestyle Women">400M Freestyle Women</option>
+                        <option value="200M Butterfly Women">200M Butterfly Women</option>
+                        <option value="100M Freestyle Women">100M Freestyle Women</option>
+                        <option value="200M Individual Meldy Women">200M Individual Meldy Women</option>
+                        <option value="50M Breast Women">50M Breast Women</option>
+                        <option value="100M Back Women">100M Back Women</option>
+                        <option value="200M Breast Women">200M Breast Women</option>
+                        <option value="800m Freestyle Women">800m Freestyle Women</option>
+                    </select>
+                    
+                    <label for="event_number">Event Number:</label>
+                    <input type="number" id="event_number" name="event_number" required>
+
+                    <label for="round">Round:</label>
+                    <select id="round" name="round" required>
+                        <option value="HEAT01">HEAT - 01</option>
+                        <option value="HEAT02">HEAT - 02</option>
+                        <option value="HEAT03">HEAT - 03</option>
+                        <option value="FINALS">FINALS</option>
+                    </select>
+                    
+                    <label for="performance">Performance:</label>
+                    <input type="text" id="performance" name="performance" required>
+                    
+                    <label for="place">Place:</label>
+                    <input type="number" id="place" name="place" required>
+                    
+                    <button type="submit">Submit Results</button>
+                </form>
+            </section>
+        </div>
+
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Competition Number</th>
+                    <th>Event</th>
+                    <th>Round</th> <!-- New column for Round -->
+                    <th>Event Number</th>
+                    <th>Performance</th>
+                    <th>Place</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Results will be dynamically inserted here -->
+            </tbody>
+        </table>
+        <button id="generatePDF">Generate PDF</button>
+        <button id="clearTable">Clear Table</button>
+        <button id="backButton" onclick="location.href = 'data-entry.html'">Back</button>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 by: Yuresha R. Somarathna | 
+            <a href="mailto:yuresharuchikani987@gmail.com">yuresharuchikani987@gmail.com</a>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            let editingRow = null;
+    
+            function saveData() {
+                const rows = Array.from(document.getElementById('resultsTable').querySelectorAll('tbody tr')).map(row => ({
+                    competitionNumber: row.cells[0].innerText,
+                    event: row.cells[1].innerText,
+                    round: row.cells[2].innerText,
+                    eventNumber: row.cells[3].innerText,
+                    performance: row.cells[4].innerText,
+                    place: row.cells[5].innerText
+                }));
+                localStorage.setItem('resultsList', JSON.stringify(rows));
+            }
+    
+            function loadData() {
+                const storedData = localStorage.getItem('resultsList');
+                const rows = storedData ? JSON.parse(storedData) : [];
+                const table = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+    
+                rows.forEach(rowData => {
+                    const newRow = table.insertRow();
+                    newRow.innerHTML = `
+                        <td>${rowData.competitionNumber}</td>
+                        <td>${rowData.event}</td>
+                        <td>${rowData.round}</td>
+                        <td>${rowData.eventNumber}</td>
+                        <td>${rowData.performance}</td>
+                        <td>${rowData.place}</td>
+                        <td><button class="editButton">Edit</button></td>
+                    `;
+                });
+            }
+    
+            loadData();
+    
+            document.getElementById('resultsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Collect form data
+                const competitionNumber = document.getElementById('result_competition_number').value;
+                const event = document.getElementById('result_event').value;
+                const eventNumber = document.getElementById('event_number').value;
+                const round = document.getElementById('round').value;
+                const performance = document.getElementById('performance').value;
+                const place = document.getElementById('place').value;
+    
+                const table = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+    
+                if (editingRow) {
+                    // Update existing row
+                    editingRow.cells[0].innerText = competitionNumber;
+                    editingRow.cells[1].innerText = event;
+                    editingRow.cells[2].innerText = round;
+                    editingRow.cells[3].innerText = eventNumber;
+                    editingRow.cells[4].innerText = performance;
+                    editingRow.cells[5].innerText = place;
+                    editingRow = null;
+                } else {
+                    // Insert new row into table
+                    const newRow = table.insertRow();
+                    newRow.innerHTML = `
+                        <td>${competitionNumber}</td>
+                        <td>${event}</td>
+                        <td>${round}</td>
+                        <td>${eventNumber}</td>
+                        <td>${performance}</td>
+                        <td>${place}</td>
+                        <td><button class="editButton">Edit</button></td>
+                    `;
+                }
+    
+                // Save data to localStorage
+                saveData();
+    
+                // Clear the form
+                this.reset();
+            });
+
+    
+            document.getElementById('resultsTable').addEventListener('click', function(e) {
+                if (e.target.classList.contains('editButton')) {
+                    const row = e.target.closest('tr');
+                    editingRow = row;
+    
+                    document.getElementById('result_competition_number').value = row.cells[0].innerText;
+                    document.getElementById('result_event').value = row.cells[1].innerText;
+                    document.getElementById('round').value = row.cells[2].innerText;
+                    document.getElementById('event_number').value = row.cells[3].innerText;
+                    document.getElementById('performance').value = row.cells[4].innerText;
+                    document.getElementById('place').value = row.cells[5].innerText;
+                }
+            });
+    
+            document.getElementById('clearTable').addEventListener('click', function() {
+                localStorage.removeItem('resultsList');
+                document.getElementById('resultsTable').querySelector('tbody').innerHTML = '';
+            });
+        });
+    </script>
+    
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Function to generate PDF
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const columns = [
+                { header: 'Competition Number', dataKey: 'competitionNumber' },
+                { header: 'Event', dataKey: 'event' },
+                { header: 'Round', dataKey: 'round' },
+                { header: 'Event Number', dataKey: 'eventNumber' },
+                { header: 'Performance', dataKey: 'performance' },
+                { header: 'Place', dataKey: 'place' }
+            ];
+
+            const rows = [];
+            document.querySelectorAll('#resultsTable tbody tr').forEach(row => {
+                const rowData = {
+                    competitionNumber: row.cells[0].innerText,
+                    event: row.cells[1].innerText,
+                    round: row.cells[2].innerText,
+                    eventNumber: row.cells[3].innerText,
+                    performance: row.cells[4].innerText,
+                    place: row.cells[5].innerText
+                };
+                rows.push(rowData);
+            });
+
+            doc.autoTable({
+                head: [columns.map(col => col.header)],
+                body: rows.map(row => columns.map(col => row[col.dataKey]))
+            });
+
+            doc.save('results.pdf');
+        }
+
+        // Bind generatePDF function to button click
+        document.getElementById('generatePDF').addEventListener('click', generatePDF);
+    });
+</script>
+
+</body>
+</html>

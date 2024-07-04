@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starter List</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <!-- jsPDF Autotable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>48th National Sports Festival 2024  <img src="04.png" height="100px" width="75px"></h1>
+
+        <div class="container01">
+            <h1>Data Entry Form</h1>
+
+            <!-- Starter List Form -->
+            <section class="form-section">
+                <h2>Starter List</h2>
+                <form id="starterListForm">
+                    <label for="starter_event_number">Event Number:</label>
+                    <input type="number" id="starter_event_number" name="event_number" required>
+
+                    <label for="starter_competition_number">Competition Number:</label>
+                    <input type="text" id="starter_competition_number" name="competition_number" required>
+                    
+                    <label for="starter_event">Event:</label>
+                    <select id="starter_event" name="event" required>
+                        <option value="none">None</option>
+                        <option value="4 X 50M Meldy Relay Men">4 X 50M Meldy Relay Men</option>
+                        <option value="50M Freestyle Men">50M Freestyle Men</option>
+                        <option value="200M Back Men">200M Back Men</option>
+                        <option value="100M Breast Men">100M Breast Men</option>
+                        <option value="50M Butterfly Men">50M Butterfly Men</option>
+                        <option value="200M Freestyle Men">200M Freestyle Men</option>
+                        <option value="100M Butterfly Men">100M Butterfly Men</option>
+                        <option value="4 X 50M Freestyle Relay Men">4 X 50M Freestyle Relay Men</option>
+                        <option value="50M Back Men">50M Back Men</option>
+                        <option value="400M Freestyle Men">400M Freestyle Men</option>
+                        <option value="200M Butterfly Men">200M Butterfly Men</option>
+                        <option value="100M Freestyle Men">100M Freestyle Men</option>
+                        <option value="200M Individual Meldy Men">200M Individual Meldy Men</option>
+                        <option value="50M Breast Men">50M Breast Men</option>
+                        <option value="100M Back Men">100M Back Men</option>
+                        <option value="200M Breast Men">200M Breast Men</option>
+                        <option value="1500m Freestyle Men">1500m Freestyle Men</option>
+                        <option value="4 X 50M Meldy Relay Women">4 X 50M Meldy Relay Women</option>
+                        <option value="50M Freestyle Women">50M Freestyle Women</option>
+                        <option value="200M Back Women">200M Back Women</option>
+                        <option value="100M Breast Women">100M Breast Women</option>
+                        <option value="50M Butterfly Women">50M Butterfly Women</option>
+                        <option value="200M Freestyle Women">200M Freestyle Women</option>
+                        <option value="100M Butterfly Women">100M Butterfly Women</option>
+                        <option value="4 X 50M Freestyle Relay Women">4 X 50M Freestyle Relay Women</option>
+                        <option value="50M Back Women">50M Back Women</option>
+                        <option value="400M Freestyle Women">400M Freestyle Women</option>
+                        <option value="200M Butterfly Women">200M Butterfly Women</option>
+                        <option value="100M Freestyle Women">100M Freestyle Women</option>
+                        <option value="200M Individual Meldy Women">200M Individual Meldy Women</option>
+                        <option value="50M Breast Women">50M Breast Women</option>
+                        <option value="100M Back Women">100M Back Women</option>
+                        <option value="200M Breast Women">200M Breast Women</option>
+                        <option value="800m Freestyle Women">800m Freestyle Women</option>
+                    </select>
+
+                    <label for="lane_order">Lane Order:</label>
+                    <input type="text" id="lane_order" name="lane_order" required>
+                    
+                    <button type="submit">Submit Starter List</button>
+                </form>
+            </section>
+        </div>
+
+        <table id="starterTable">
+            <thead>
+                <tr>
+                    <th>Event Number</th>
+                    <th>Competition Number</th>
+                    <th>Event</th>
+                    <th>Lane Order</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Starter list will be dynamically inserted here -->
+            </tbody>
+        </table>
+        <button id="generatePDF">Generate PDF</button>
+        <button id="clearTable">Clear Table</button>
+        <button id="backButton" onclick="location.href = 'data-entry.html'">Back</button>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 by: Yuresha R. Somarathna | 
+            <a href="mailto:yuresharuchikani987@gmail.com">yuresharuchikani987@gmail.com</a>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            let editingRow = null;
+
+            function saveData() {
+                const rows = Array.from(document.getElementById('starterTable').querySelectorAll('tbody tr')).map(row => ({
+                    eventNumber: row.cells[0].innerText,
+                    competitionNumber: row.cells[1].innerText,
+                    event: row.cells[2].innerText,
+                    laneOrder: row.cells[3].innerText
+                }));
+                localStorage.setItem('starterList', JSON.stringify(rows));
+            }
+
+            function loadData() {
+                const rows = JSON.parse(localStorage.getItem('starterList')) || [];
+                const table = document.getElementById('starterTable').getElementsByTagName('tbody')[0];
+                rows.forEach(rowData => {
+                    const newRow = table.insertRow();
+                    newRow.innerHTML = `
+                        <td>${rowData.eventNumber}</td>
+                        <td>${rowData.competitionNumber}</td>
+                        <td>${rowData.event}</td>
+                        <td>${rowData.laneOrder}</td>
+                        <td><button class="editButton">Edit</button></td>
+                    `;
+                });
+            }
+
+            loadData();
+
+            document.getElementById('starterListForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Collect form data
+                const eventNumber = document.getElementById('starter_event_number').value;
+                const competitionNumber = document.getElementById('starter_competition_number').value;
+                const event = document.getElementById('starter_event').value;
+                const laneOrder = document.getElementById('lane_order').value;
+
+                const table = document.getElementById('starterTable').getElementsByTagName('tbody')[0];
+
+                if (editingRow) {
+                    // Update existing row
+                    editingRow.cells[0].innerText = eventNumber;
+                    editingRow.cells[1].innerText = competitionNumber;
+                    editingRow.cells[2].innerText = event;
+                    editingRow.cells[3].innerText = laneOrder;
+                    editingRow = null;
+                } else {
+                    // Insert new row into table
+                    const newRow = table.insertRow();
+                    newRow.innerHTML = `
+                        <td>${eventNumber}</td>
+                        <td>${competitionNumber}</td>
+                        <td>${event}</td>
+                        <td>${laneOrder}</td>
+                        <td><button class="editButton">Edit</button></td>
+                    `;
+                }
+
+                // Save data to localStorage
+                saveData();
+
+                // Clear the form
+                this.reset();
+            });
+
+            document.getElementById('starterTable').addEventListener('click', function(e) {
+                if (e.target.classList.contains('editButton')) {
+                    const row = e.target.closest('tr');
+                    editingRow = row;
+
+                    document.getElementById('starter_event_number').value = row.cells[0].innerText;
+                    document.getElementById('starter_competition_number').value = row.cells[1].innerText;
+                    document.getElementById('starter_event').value = row.cells[2].innerText;
+                    document.getElementById('lane_order').value = row.cells[3].innerText;
+                }
+            });
+
+            document.getElementById('clearTable').addEventListener('click', function() {
+                localStorage.removeItem('starterList');
+                document.getElementById('starterTable').querySelector('tbody').innerHTML = '';
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Function to generate PDF
+            function generatePDF() {
+                // Using the jsPDF library and the autoTable plugin
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Define columns for the table
+                const columns = [
+                    { header: 'Event Number', dataKey: 'eventNumber' },
+                    { header: 'Competition Number', dataKey: 'competitionNumber' },
+                    { header: 'Event', dataKey: 'event' },
+                    { header: 'Lane Order', dataKey: 'laneOrder' }
+                ];
+
+                // Extract data from table rows
+                const rows = [];
+                document.querySelectorAll('#starterTable tbody tr').forEach(row => {
+                    const rowData = {
+                        eventNumber: row.cells[0].innerText,
+                        competitionNumber: row.cells[1].innerText,
+                        event: row.cells[2].innerText,
+                        laneOrder: row.cells[3].innerText
+                    };
+                    rows.push(rowData);
+                });
+
+                // Add table to PDF
+                doc.autoTable({
+                    head: [columns.map(col => col.header)],
+                    body: rows.map(row => columns.map(col => row[col.dataKey]))
+                });
+
+                // Save the PDF
+                doc.save('starter_list.pdf');
+            }
+
+            // Bind generatePDF function to button click
+            document.getElementById('generatePDF').addEventListener('click', generatePDF);
+        });
+    </script>
+</body>
+</html>

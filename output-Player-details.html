@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player List</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <!-- jsPDF Autotable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>48th National Sports Festival 2024  <img src="04.png" height="100px" width="75px"></h1>
+        <h1>Player List</h1>
+
+        <button id="generatePDF">Generate PDF</button>
+        <button id="clearTable">Clear Table</button>
+
+        <table id="outputPlayerTable">
+            <thead>
+                <tr>
+                    <th>Competition Number</th>
+                    <th>Name</th>
+                    <th>Event</th>
+                    <th>Province</th>
+                    <th>Date of Birth</th>
+                    <th>Gender</th>
+                    <th>Phone Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Player data will be dynamically inserted here -->
+            </tbody>
+        </table>
+
+        <div class="navigation-buttons">
+            <button id="backToIndex" onclick="location.href = 'index.html'">Back</button><br><br>
+            <button id="dataEntryDashboard" onclick="location.href = 'data-entry.html'">Data Entry Dashboard</button><br><br>
+            <button id="bestPerformanceList" onclick="location.href = 'output-best-performance-list.html'">Best Performance List</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 by: Yuresha R. Somarathna | 
+            <a href="mailto:yuresharuchikani987@gmail.com">yuresharuchikani987@gmail.com</a>
+        </p>
+    </div>
+
+    <script>
+        // Function to save player data from form to localStorage
+function saveFormData() {
+    const playerData = {
+        competitionNumber: document.getElementById('competitionNumber').value,
+        name: document.getElementById('name').value,
+        event: document.getElementById('event').value,
+        province: document.getElementById('province').value,
+        dateOfBirth: document.getElementById('dateOfBirth').value,
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        phoneNumber: document.getElementById('phoneNumber').value
+    };
+
+    // Retrieve existing data or initialize an empty array if no data exists
+    let storedData = JSON.parse(localStorage.getItem('playerDetails')) || [];
+
+    // Add new data to the existing array
+    storedData.push(playerData);
+
+    // Store updated data back into localStorage
+    localStorage.setItem('playerDetails', JSON.stringify(storedData));
+
+    // Call function to update the table with the new data
+    updatePlayerDetailsList();
+}
+
+// Function to update the table with player details from localStorage
+function updatePlayerDetailsList() {
+    const table = document.getElementById('outputPlayerTable');
+    const storedData = JSON.parse(localStorage.getItem('playerDetails')) || [];
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
+
+    storedData.forEach(data => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${data.competitionNumber}</td>
+            <td>${data.name}</td>
+            <td>${data.event}</td>
+            <td>${data.province}</td>
+            <td>${data.dateOfBirth}</td>
+            <td>${data.gender}</td>
+            <td>${data.phoneNumber}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Event listener for form submission
+const playerForm = document.getElementById('playerForm');
+if (playerForm) {
+    playerForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        saveFormData(); // Call function to save form data to localStorage
+        playerForm.reset(); // Reset the form fields after submission (optional)
+    });
+}
+
+// Call updatePlayerDetailsList() on page load to populate the table initially
+document.addEventListener('DOMContentLoaded', updatePlayerDetailsList);
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear table button functionality
+            document.getElementById('clearTable').addEventListener('click', function() {
+                localStorage.removeItem('playerDetails');
+                document.getElementById('outputPlayerTable').querySelector('tbody').innerHTML = '';
+            });
+
+            // Generate PDF button functionality
+            document.getElementById('generatePDF').addEventListener('click', function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const columns = [
+                    { header: 'Competition Number', dataKey: 'competitionNumber' },
+                    { header: 'Name', dataKey: 'name' },
+                    { header: 'Event', dataKey: 'event' },
+                    { header: 'Province', dataKey: 'province' },
+                    { header: 'Date of Birth', dataKey: 'dateOfBirth' },
+                    { header: 'Gender', dataKey: 'gender' },
+                    { header: 'Phone Number', dataKey: 'phoneNumber' }
+                ];
+
+                const rows = JSON.parse(localStorage.getItem('playerDetails')) || [];
+
+                doc.autoTable({
+                    head: [columns.map(col => col.header)],
+                    body: rows.map(row => columns.map(col => row[col.dataKey])),
+                });
+
+                doc.save('player-list.pdf');
+            });
+        });
+    </script>
+</body>
+</html>

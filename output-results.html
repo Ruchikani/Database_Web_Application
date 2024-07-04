@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results Details List</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <!-- jsPDF Autotable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>48th National Sports Festival 2024  <img src="04.png" height="100px" width="75px"></h1>
+        <h1>Results Details List</h1>
+        <button id="generatePDF">Generate PDF</button>
+        <button id="clearBestPerformance">Clear Table</button><br><br>
+
+        <!-- Filter Options -->
+        <div class="filters">
+            <label for="eventNumberFilter">Event Number:</label>
+            <input type="number" id="eventNumberFilter" min="1" max="8" placeholder="Enter event number">
+
+            <label for="eventFilter">Event:</label>
+            <select id="eventFilter" name="eventFilter">
+                <option value="All">All</option>
+                <option value="4 X 50M MELDY RELAY MEN">4 X 50M MELDY RELAY MEN</option>
+                <option value="50M FREESTYLE MEN">50M FREESTYLE MEN</option>
+                <option value="200M BACK MEN">200M BACK MEN</option>
+                <option value="100M BREAST MEN">100M BREAST MEN</option>
+                <option value="50M BUTTERFLY MEN">50M BUTTERFLY MEN</option>
+                <option value="200M FREESTYLE MEN">200M FREESTYLE MEN</option>
+                <option value="100M BUTTERFLY MEN">100M BUTTERFLY MEN</option>
+                <option value="4 X 50M FREESTYLE RELAY MEN">4 X 50M FREESTYLE RELAY MEN</option>
+                <option value="50M BACK MEN">50M BACK MEN</option>
+                <option value="400M FREESTYLE MEN">400M FREESTYLE MEN</option>
+                <option value="200M BUTTERFLY MEN">200M BUTTERFLY MEN</option>
+                <option value="100M FREESTYLE MEN">100M FREESTYLE MEN</option>
+                <option value="200M INDIVIDUAL MEDLY MEN">200M INDIVIDUAL MEDLY MEN</option>
+                <option value="50M BREAST MEN">50M BREAST MEN</option>
+                <option value="100M BACK MEN">100M BACK MEN</option>
+                <option value="200M BREAST MEN">200M BREAST MEN</option>
+                <option value="4 X 50M MELDY RELAY WOMEN">4 X 50M MELDY RELAY WOMEN</option>
+                <option value="50M FREESTYLE WOMEN">50M FREESTYLE WOMEN</option>
+                <option value="200M BACK WOMEN">200M BACK WOMEN</option>
+                <option value="100M BREAST WOMEN">100M BREAST WOMEN</option>
+                <option value="50M BUTTERFLY WOMEN">50M BUTTERFLY WOMEN</option>
+                <option value="200M FREESTYLE WOMEN">200M FREESTYLE WOMEN</option>
+                <option value="100M BUTTERFLY WOMEN">100M BUTTERFLY WOMEN</option>
+                <option value="4 X 50M FREESTYLE RELAY WOMEN">4 X 50M FREESTYLE RELAY WOMEN</option>
+                <option value="50M BACK WOMEN">50M BACK WOMEN</option>
+                <option value="400M FREESTYLE WOMEN">400M FREESTYLE WOMEN</option>
+                <option value="200M BUTTERFLY WOMEN">200M BUTTERFLY WOMEN</option>
+                <option value="100M FREESTYLE WOMEN">100M FREESTYLE WOMEN</option>
+                <option value="200M INDIVIDUAL MEDLY WOMEN">200M INDIVIDUAL MEDLY WOMEN</option>
+                <option value="50M BREAST WOMEN">50M BREAST WOMEN</option>
+                <option value="100M BACK WOMEN">100M BACK WOMEN</option>
+                <option value="200M BREAST WOMEN">200M BREAST WOMEN</option>
+            </select>
+
+            <label for="genderFilter">Gender:</label>
+            <select id="genderFilter">
+                <option value="all">All</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+
+            <label for="roundFilter">Round:</label>
+            <select id="roundFilter">
+                <option value="all">All</option>
+                <option value="heat01">Heat1</option>
+                <option value="heat02">Heat2</option>
+                <option value="heat03">Heat3</option>
+                <option value="finals">Finals</option>
+            </select><br>
+
+            <button id="filterButton">Filter</button><br>
+        </div>
+
+        <table id="outputResultsListTable">
+            <thead>
+                <tr>
+                    <th>Event Number</th>
+                    <th>Event</th>
+                    <th>Round</th>
+                    <th>Place</th>
+                    <th>Competition Number</th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Province</th>
+                    <th>Performance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Results Details List will be dynamically inserted here -->
+            </tbody>
+        </table>
+
+        <div class="navigation-buttons">
+            <button id="backButton" onclick="location.href='report-view.html'">Back</button><br><br>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 by: Yuresha R. Somarathna | 
+                <a href="mailto:yuresharuchikani987@gmail.com">yuresharuchikani987@gmail.com</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Function to clear the table
+        document.getElementById('clearBestPerformance').addEventListener('click', function() {
+            // Clear the tbody content
+            document.querySelector('#outputResultsListTable tbody').innerHTML = '';
+        });
+
+        // Function to generate PDF
+        document.getElementById('generatePDF').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const columns = [
+                { header: 'Event Number', dataKey: 'eventNumber' },
+                { header: 'Event', dataKey: 'event' },
+                { header: 'Round', dataKey: 'round' },
+                { header: 'Place', dataKey: 'place' },
+                { header: 'Competition Number', dataKey: 'competitionNumber' },
+                { header: 'Name', dataKey: 'name' },
+                { header: 'Gender', dataKey: 'gender' },
+                { header: 'Province', dataKey: 'province' },
+                { header: 'Performance', dataKey: 'performance' }
+            ];
+
+            const rows = getDataForPDF(); // Replace with your data retrieval logic
+
+            doc.autoTable({
+                head: [columns.map(col => col.header)],
+                body: rows.map(row => columns.map(col => row[col.dataKey])),
+            });
+
+            doc.save('results-details.pdf');
+        });
+
+        // Function to retrieve data for PDF
+        function getDataForPDF() {
+            const storedData = localStorage.getItem('resultsList');
+            return storedData ? JSON.parse(storedData) : [];
+        }
+    </script>
+
+    <script>
+        // Function to update the output results list table
+        function updateOutputResultsList() {
+            const outputResultsListTable = document.getElementById('outputResultsListTable');
+            if (!outputResultsListTable) return;
+
+            const playerDetails = JSON.parse(localStorage.getItem('playerDetails')) || [];
+            const results = JSON.parse(localStorage.getItem('resultsList')) || [];
+
+            console.log('Player Details:', playerDetails);
+            console.log('Results:', results);
+
+            const tbody = outputResultsListTable.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            results.forEach(result => {
+                const playerDetail = playerDetails.find(p => p.competitionNumber === result.competitionNumber);
+
+                const row = document.createElement('tr');
+                row.appendChild(createCell(result.eventNumber));
+                row.appendChild(createCell(result.event));
+                row.appendChild(createCell(result.round));
+                row.appendChild(createCell(result.place));
+                row.appendChild(createCell(result.competitionNumber));
+
+                if (playerDetail) {
+                    row.appendChild(createCell(playerDetail.name));
+                    row.appendChild(createCell(playerDetail.gender));
+                    row.appendChild(createCell(playerDetail.province));
+                } else {
+                    row.appendChild(createCell('')); // Empty cell if no player detail found
+                    row.appendChild(createCell('')); // Empty cell if no player detail found
+                }
+
+                row.appendChild(createCell(result.performance));
+                tbody.appendChild(row);
+            });
+        }
+
+        function createCell(text) {
+            const cell = document.createElement('td');
+            cell.textContent = text;
+            return cell;
+        }
+
+        // Call the function to update the output results list when the page loads
+        document.addEventListener('DOMContentLoaded', updateOutputResultsList);
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('filterButton').addEventListener('click', function() {
+            const eventNumberFilter = document.getElementById('eventNumberFilter').value;
+            const eventFilter = document.getElementById('eventFilter').value.toLowerCase();
+            const genderFilter = document.getElementById('genderFilter').value;
+            const roundFilter = document.getElementById('roundFilter').value;
+
+            const table = document.getElementById('outputResultsListTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+                const row = rows[i];
+                const eventNumber = row.getElementsByTagName('td')[0].innerText;
+                const event = row.getElementsByTagName('td')[1].innerText.toLowerCase();
+                const gender = row.getElementsByTagName('td')[6].innerText.toLowerCase();
+                const round = row.getElementsByTagName('td')[2].innerText.toLowerCase();
+
+                const eventNumberMatch = eventNumberFilter === '' || eventNumber === eventNumberFilter;
+                const eventMatch = eventFilter === '' || event.includes(eventFilter);
+                const genderMatch = genderFilter === 'all' || gender === genderFilter;
+                const roundMatch = roundFilter === 'all' || round === roundFilter;
+
+                if (eventNumberMatch && eventMatch && genderMatch && roundMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

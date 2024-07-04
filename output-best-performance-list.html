@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Output Best Performance List</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <!-- jsPDF Autotable plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+
+</head>
+</head>
+<body>
+    <div class="container">
+        <h1>48th National Sports Festival 2024  <img src="04.png" height="100px" width="75px"></h1>
+        <h1>Best Performance List</h1>
+        <button id="generatePDF">Generate PDF</button>
+        <button id="clearBestPerformance">Clear Table</button><br><br>
+
+                <!-- Filter Options -->
+                 <div class="filters">
+                <label for="genderFilter">Filter by Gender:</label>
+                <select id="genderFilter">
+                    <option value="all">All</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+                <button id="filterButton">Filter</button>
+                </div>
+
+        <table id="outputBestPerformanceTable">
+            <thead>
+                <tr>
+                    <th>Competition Number</th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Province</th>
+                    <th>Event</th>
+                    <th>Performance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Best performances will be dynamically inserted here -->
+            </tbody>
+        </table>
+
+        <div class="navigation-buttons">
+            <button id="backButton" onclick="location.href='report-view.html'">Back</button><br><br>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 by: Yuresha R. Somarathna | 
+                <a href="mailto:yuresharuchikani987@gmail.com">yuresharuchikani987@gmail.com</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const clearButton = document.getElementById('clearBestPerformance');
+            const generatePDFButton = document.getElementById('generatePDF');
+            const tbody = document.querySelector('#outputBestPerformanceTable tbody');
+
+            clearButton.addEventListener('click', function() {
+                // Clear the table body content
+                tbody.innerHTML = '';
+            });
+
+            generatePDFButton.addEventListener('click', function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const title = '48th National Sports Festival 2021';
+
+                const columns = [
+                    {h1: '48th National Sports Festival 2024', dataKey: 'h1'},
+                    { header: 'Competition Number', dataKey: 'competitionNumber' },
+                    { header: 'Name', dataKey: 'name' },
+                    { header: 'Gender', dataKey: 'gender' },
+                    { header: 'Province', dataKey: 'province' },
+                    { header: 'Event', dataKey: 'event' },
+                    { header: 'Performance', dataKey: 'performance' }
+                ];
+
+                const rows = [];
+                document.querySelectorAll('#outputBestPerformanceTable tbody tr').forEach(row => {
+                    const rowData = {
+                        competitionNumber: row.cells[0].innerText,
+                        name: row.cells[1].innerText,
+                        gender: row.cells[2].innerText,
+                        province: row.cells[3].innerText,
+                        event: row.cells[4].innerText,
+                        performance: row.cells[5].innerText
+                    };
+                    rows.push(rowData);
+                });
+
+                doc.autoTable({
+                    head: [columns.map(col => col.header)],
+                    body: rows.map(row => columns.map(col => row[col.dataKey]))
+                });
+
+                doc.save('best_performance_list.pdf');
+            });
+
+
+            // Function to update the output best performance table
+            function updateOutputBestPerformanceList() {
+                const outputBestPerformanceTable = document.getElementById('outputBestPerformanceTable');
+                if (!outputBestPerformanceTable) return;
+
+                const playerDetails = JSON.parse(localStorage.getItem('playerDetails')) || [];
+                const results = JSON.parse(localStorage.getItem('resultsList')) || [];
+
+                console.log('Player Details:', playerDetails);
+                console.log('Results:', results);
+
+                const tbody = outputBestPerformanceTable.querySelector('tbody');
+                tbody.innerHTML = '';
+
+                const firstPlaceResults = results.filter(result => result.place === "1");
+
+                const bestPerformances = {};
+                firstPlaceResults.forEach(result => {
+                    if (result.competitionNumber && !bestPerformances[result.event]) {
+                        bestPerformances[result.event] = result;
+                    }
+                });
+
+                Object.values(bestPerformances).forEach(bestResult => {
+                    const competitionNumber = bestResult.competitionNumber;
+                    const playerDetail = playerDetails.find(p => p.competitionNumber === competitionNumber);
+
+                    if (playerDetail) {
+                        const row = document.createElement('tr');
+                        row.appendChild(createCell(competitionNumber));
+                        row.appendChild(createCell(playerDetail.name));
+                        row.appendChild(createCell(playerDetail.gender));
+                        row.appendChild(createCell(playerDetail.province));
+                        row.appendChild(createCell(bestResult.event));
+                        row.appendChild(createCell(bestResult.performance));
+                        tbody.appendChild(row);
+                    }
+                });
+            }
+
+            function createCell(text) {
+                const cell = document.createElement('td');
+                cell.textContent = text;
+                return cell;
+            }
+
+            // Call the function to update the output best performance list when the page loads
+            updateOutputBestPerformanceList();
+        });
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('filterButton').addEventListener('click', function() {
+            const genderFilter = document.getElementById('genderFilter').value;
+            const table = document.getElementById('outputBestPerformanceTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+                const row = rows[i];
+                const gender = row.getElementsByTagName('td')[2].innerText.toLowerCase();
+
+                if (genderFilter === 'all' || gender === genderFilter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
